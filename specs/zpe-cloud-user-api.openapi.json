@@ -1,0 +1,1340 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ZPE Cloud API - USER",
+    "version": "1.0.0",
+    "description": "Reconstructed OpenAPI 3 spec for the ZPE Cloud USER API, generated from https://api.qa-zpecloud.com/cloud-user-redoc. Authentication: Bearer token or Cookie session.",
+    "contact": {
+      "email": "support@zpesystems.com"
+    },
+    "license": {
+      "name": "ZPE Systems, Inc. - All rights reserved"
+    }
+  },
+  "servers": [
+    { "url": "https://api.qa-zpecloud.com", "description": "QA" },
+    { "url": "https://api.zpecloud.com", "description": "Production" }
+  ],
+  "tags": [
+    { "name": "account" },
+    { "name": "company" },
+    { "name": "diagnostic-logs" },
+    { "name": "email-server-configuration" },
+    { "name": "license" },
+    { "name": "license-subscription" },
+    { "name": "manager" },
+    { "name": "map-configuration" },
+    { "name": "oidc" },
+    { "name": "request-license-renew" },
+    { "name": "service-account" },
+    { "name": "sso" },
+    { "name": "user" },
+    { "name": "users" },
+    { "name": "v2" }
+  ],
+  "security": [
+    { "bearerAuth": [] },
+    { "cookieAuth": [] }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" },
+      "cookieAuth": { "type": "apiKey", "in": "cookie", "name": "sessionid" }
+    },
+    "responses": {
+      "Unauthorized":  { "description": "Authentication credentials were not provided." },
+      "Forbidden":     { "description": "Forbidden / not allowed for current user." },
+      "NotFound":      { "description": "Resource does not exist." },
+      "BadRequest":    { "description": "Validation error." },
+      "NoContent":     { "description": "Success — no content." }
+    },
+    "schemas": {
+      "CompanyReduced": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "business_name": { "type": "string", "maxLength": 200 }
+        }
+      },
+      "IpAddressWhitelist": {
+        "type": "object",
+        "required": ["ip_address"],
+        "properties": {
+          "id": { "type": "integer" },
+          "company": { "$ref": "#/components/schemas/CompanyReduced" },
+          "ip_address": { "type": "string", "minLength": 1, "maxLength": 50 }
+        }
+      },
+      "CompanyKey": {
+        "type": "object",
+        "properties": {
+          "customer_code": { "type": "string", "minLength": 1, "maxLength": 6 },
+          "company_key": { "type": "string", "minLength": 1, "maxLength": 128 }
+        }
+      },
+      "CompanyKeyUpdate": {
+        "type": "object",
+        "required": ["company_key"],
+        "properties": {
+          "company_key": { "type": "string", "maxLength": 128, "nullable": true }
+        }
+      },
+      "CompanyLicense": {
+        "type": "object",
+        "properties": {
+          "license": { "type": "string" },
+          "license_status": { "type": "string" },
+          "license_usable": { "type": "string" }
+        }
+      },
+      "CompanyLogo": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "company_icon": { "type": "string" }
+        }
+      },
+      "OnPremise": {
+        "type": "object",
+        "required": ["customer_code", "enrollment_key", "url"],
+        "properties": {
+          "id": { "type": "integer" },
+          "company": { "type": "integer" },
+          "customer_code": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "enrollment_key": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "is_active": { "type": "boolean", "default": true },
+          "url": { "type": "string", "format": "uri", "minLength": 1, "maxLength": 200 }
+        }
+      },
+      "CompanyDetail": {
+        "type": "object",
+        "required": ["business_name", "address", "contact_info"],
+        "properties": {
+          "id": { "type": "integer" },
+          "business_name": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "address": { "type": "string", "maxLength": 200, "nullable": true },
+          "contact_info": { "type": "string", "maxLength": 200, "nullable": true },
+          "sub_domain": { "type": "string", "maxLength": 63, "nullable": true, "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-_.]+$" },
+          "source_ip_verification": { "type": "boolean" },
+          "enforce_ip_verification": { "type": "boolean" },
+          "enforce_mfa_verification": { "type": "boolean" },
+          "company_icon": { "type": "string" },
+          "uuid": { "type": "string", "format": "uuid" },
+          "vat": { "type": "string", "maxLength": 50, "nullable": true },
+          "registration_date": { "type": "string", "format": "date-time", "nullable": true },
+          "device_transfer_allowed": { "type": "boolean" },
+          "monitoring": { "type": "boolean" },
+          "upgrade_configuration": { "type": "boolean" },
+          "access": { "type": "boolean" },
+          "is_lock": { "type": "boolean" },
+          "allow_to_login_with_password": { "type": "boolean" },
+          "enabled_on_premise": { "type": "boolean" },
+          "device_unroll_allowed": { "type": "boolean" },
+          "service_monitoring_code": { "type": "string", "nullable": true },
+          "allow_claim_id_config": { "type": "boolean" },
+          "allow_claim_id_transfer": { "type": "boolean" },
+          "custom_email_configuration": { "type": "boolean" },
+          "type": { "type": "string", "enum": ["CO", "CM", "IN", "WH"] }
+        }
+      },
+      "CompanyUpdateMultipart": {
+        "type": "object",
+        "required": ["business_name", "address", "contact_info", "sub_domain"],
+        "properties": {
+          "business_name": { "type": "string", "maxLength": 200 },
+          "address": { "type": "string", "maxLength": 200 },
+          "contact_info": { "type": "string", "maxLength": 200 },
+          "sub_domain": { "type": "string", "maxLength": 63 },
+          "source_ip_verification": { "type": "boolean" },
+          "enforce_ip_verification": { "type": "boolean" },
+          "enforce_mfa_verification": { "type": "boolean" },
+          "ip_whitelist": { "type": "string", "description": "JSON list of {ip_address: <cidr>}" }
+        }
+      },
+      "EmailServerConfig": {
+        "type": "object",
+        "required": ["configuration"],
+        "properties": {
+          "configuration": { "type": "string", "enum": ["default", "custom"] },
+          "host": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "port": { "type": "integer" },
+          "username": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "password": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "sender": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "use_tls": { "type": "boolean" },
+          "timeout": { "type": "integer" }
+        }
+      },
+      "EmailServerTest": {
+        "type": "object",
+        "required": ["email", "host", "port", "username", "password", "sender", "use_tls", "timeout"],
+        "properties": {
+          "email": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "host": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "port": { "type": "integer", "minimum": 0, "maximum": 65535 },
+          "username": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "password": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "sender": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "use_tls": { "type": "boolean" },
+          "timeout": { "type": "integer" }
+        }
+      },
+      "License": {
+        "type": "object",
+        "required": ["sku", "type", "description", "validity", "number_of_devices"],
+        "properties": {
+          "id": { "type": "integer" },
+          "validity_text": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "no_of_devices": { "type": "string" },
+          "sku": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "type": { "type": "string", "enum": ["Trial", "Subscription", "Support"] },
+          "description": { "type": "string", "minLength": 1 },
+          "validity": { "type": "integer", "minimum": 0, "maximum": 2147483647 },
+          "number_of_devices": { "type": "integer", "minimum": -2147483648, "maximum": 2147483647 }
+        }
+      },
+      "LicenseSubscription": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "activation_date": { "type": "string" },
+          "expiry": { "type": "string" },
+          "is_active": { "type": "string" },
+          "remaining_validity": { "type": "string" },
+          "license": { "$ref": "#/components/schemas/License" },
+          "company": { "$ref": "#/components/schemas/CompanyReduced" },
+          "is_app_subscription": { "type": "boolean", "default": false },
+          "status": { "type": "string" },
+          "app_name": { "type": "string", "default": "ZPE Cloud" },
+          "expiration_days": { "type": "string" },
+          "auto_activate": { "type": "boolean" },
+          "created_on": { "type": "string" },
+          "quote_order": { "type": "string" },
+          "purchase_order": { "type": "string" },
+          "sale_order": { "type": "string" }
+        }
+      },
+      "LicenseSubscriptionDelete": {
+        "type": "object",
+        "properties": {
+          "subscriptions": { "type": "array", "items": { "type": "integer" } }
+        }
+      },
+      "LicenseActivate": {
+        "type": "object",
+        "required": ["operation"],
+        "properties": {
+          "operation": { "type": "string", "enum": ["now", "schedule", "deactivate", "auto"] },
+          "schedule_date": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "UserCreate": {
+        "type": "object",
+        "required": ["email", "first_name", "last_name", "phone_number", "groups"],
+        "properties": {
+          "email": { "type": "string", "format": "email", "minLength": 1, "maxLength": 254 },
+          "first_name": { "type": "string", "minLength": 1, "maxLength": 30 },
+          "last_name": { "type": "string", "minLength": 1, "maxLength": 150 },
+          "phone_number": { "type": "string", "minLength": 10, "maxLength": 50 },
+          "groups": { "type": "array", "items": { "type": "integer" } }
+        }
+      },
+      "UserDetail": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "first_name": { "type": "string", "maxLength": 150 },
+          "last_name": { "type": "string", "maxLength": 150 },
+          "email": { "type": "string", "format": "email", "maxLength": 254 },
+          "type": { "type": "string" },
+          "phone_number": { "type": "string", "maxLength": 50, "nullable": true },
+          "company": { "type": "string" },
+          "approval_date": { "type": "string", "format": "date-time", "nullable": true },
+          "is_active": { "type": "string" },
+          "date_joined": { "type": "string" },
+          "session_timeout": { "type": "integer", "description": "Session expiry seconds, default 300" },
+          "access_level": { "type": "string" },
+          "creation_type": { "type": "string" },
+          "recovery_key_generated_date": { "type": "string", "format": "date-time", "nullable": true },
+          "mfa_status": { "type": "string" },
+          "auth_methods": { "type": "string" }
+        }
+      },
+      "UserUpdate": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email", "minLength": 1, "maxLength": 254 },
+          "first_name": { "type": "string", "minLength": 1, "maxLength": 30 },
+          "last_name": { "type": "string", "minLength": 1, "maxLength": 150 },
+          "phone_number": { "type": "string", "minLength": 10, "maxLength": 50 },
+          "session_timeout": { "type": "integer", "minimum": 60, "maximum": 99999 },
+          "groups": { "type": "array", "items": { "type": "integer" } }
+        }
+      },
+      "UserListResponse": {
+        "type": "object",
+        "properties": {
+          "count": { "type": "integer", "default": 0 },
+          "list": { "type": "array", "items": { "$ref": "#/components/schemas/UserDetail" } }
+        }
+      },
+      "UserAuthenticate": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        }
+      },
+      "UserAuthResponse": {
+        "type": "object",
+        "required": ["session_timeout"],
+        "properties": {
+          "id": { "type": "integer" },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "type": { "type": "string" },
+          "first_access": { "type": "boolean" },
+          "creation_type": { "type": "string" },
+          "company": { "type": "string" },
+          "companies_count": { "type": "string" },
+          "setup_pwd": { "type": "string" },
+          "session_timeout": { "type": "integer" },
+          "access_level": { "type": "string" }
+        }
+      },
+      "UserAuthMethod": {
+        "type": "object",
+        "required": ["users", "allow_password", "allow_sso"],
+        "properties": {
+          "users": { "type": "array", "items": { "type": "integer" } },
+          "allow_password": { "type": "boolean" },
+          "allow_sso": { "type": "boolean" }
+        }
+      },
+      "UserChangePassword": {
+        "type": "object",
+        "required": ["old_password", "new_password"],
+        "properties": {
+          "old_password": { "type": "string" },
+          "new_password": { "type": "string" }
+        }
+      },
+      "UserForgotPassword": {
+        "type": "object",
+        "required": ["email"],
+        "properties": {
+          "email": { "type": "string", "format": "email" }
+        }
+      },
+      "UserResetPassword": {
+        "type": "object",
+        "required": ["new_password", "confirm_password", "token"],
+        "properties": {
+          "new_password": { "type": "string" },
+          "confirm_password": { "type": "string" },
+          "token": { "type": "string", "minLength": 1, "maxLength": 20 }
+        }
+      },
+      "MfaTokenRequest": {
+        "type": "object",
+        "required": ["login"],
+        "properties": {
+          "login": { "type": "string", "format": "email", "description": "User email address" }
+        }
+      },
+      "MfaTokenResponse": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "description": "OTPAuth URL for QR code" },
+          "text_code": { "type": "string", "description": "Encoded secret key" }
+        }
+      },
+      "MfaLogin": {
+        "type": "object",
+        "required": ["email", "otp_key", "token"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "otp_key": { "type": "string" },
+          "token": { "type": "string" }
+        }
+      },
+      "MfaRegisterToken": {
+        "type": "object",
+        "required": ["email", "token"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "token": { "type": "string" }
+        }
+      },
+      "LockStatus": {
+        "type": "object",
+        "properties": {
+          "is_lock": { "type": "boolean", "default": false }
+        }
+      },
+      "MapConfiguration": {
+        "type": "object",
+        "required": ["zoom", "lat", "lng"],
+        "properties": {
+          "zoom": { "type": "integer" },
+          "lat": { "type": "number" },
+          "lng": { "type": "number" },
+          "site": { "type": "boolean" },
+          "device": { "type": "boolean" }
+        }
+      },
+      "OidcConfig": {
+        "type": "object",
+        "required": ["client_secret", "name", "description", "client_id", "sso_url"],
+        "properties": {
+          "uuid": { "type": "string", "format": "uuid" },
+          "client_secret": { "type": "string" },
+          "name": { "type": "string", "minLength": 1, "maxLength": 254 },
+          "description": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "status": { "type": "boolean", "default": true },
+          "provider": { "type": "string", "enum": ["OIDC", "OKTA", "AZURE"] },
+          "client_id": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "sso_url": { "type": "string", "format": "uri", "minLength": 1, "maxLength": 255 }
+        }
+      },
+      "RequestLicenseRenew": {
+        "type": "object",
+        "required": ["subscription"],
+        "properties": {
+          "subscription": { "type": "string", "enum": ["nodegrid", "app"] },
+          "comment": { "type": "string", "default": "-" }
+        }
+      },
+      "ServiceAccountCreate": {
+        "type": "object",
+        "required": ["name", "authentication_type"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "maxLength": 150 },
+          "groups": { "type": "array", "items": { "type": "integer" } },
+          "expiration_date": { "type": "string", "format": "date-time", "nullable": true },
+          "authentication_type": { "type": "string" },
+          "provider_url": { "type": "string", "format": "uri", "nullable": true },
+          "issuer": { "type": "string", "nullable": true },
+          "client_id": { "type": "string", "nullable": true },
+          "audience": { "type": "string", "nullable": true }
+        }
+      },
+      "ServiceAccountDetail": {
+        "type": "object",
+        "required": ["id", "authentication_type"],
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "expiration_date": { "type": "string", "format": "date-time", "nullable": true },
+          "expiration_status": { "type": "string" },
+          "access_level": { "type": "string" },
+          "is_active": { "type": "string" },
+          "authentication_type": { "type": "string" },
+          "provider_url": { "type": "string", "format": "uri" },
+          "issuer": { "type": "string" },
+          "client_id": { "type": "string" },
+          "audience": { "type": "string" },
+          "api_key": { "type": "string" }
+        }
+      },
+      "ServiceAccountList": {
+        "type": "object",
+        "properties": {
+          "offset": { "type": "integer", "default": 0 },
+          "limit": { "type": "integer", "default": 20 },
+          "sort_by": { "type": "string", "default": "expiration_date" },
+          "search": { "type": "string" },
+          "count": { "type": "integer", "default": 0 },
+          "list": { "type": "array", "items": { "$ref": "#/components/schemas/ServiceAccountDetail" } }
+        }
+      },
+      "ServiceAccountDelete": {
+        "type": "object",
+        "required": ["service_accounts"],
+        "properties": {
+          "service_accounts": { "type": "array", "items": { "type": "integer" } }
+        }
+      },
+      "SsoDetail": {
+        "type": "object",
+        "required": ["name", "description", "company", "sso_type", "sso_details"],
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string", "minLength": 1, "maxLength": 254 },
+          "description": { "type": "string" },
+          "company": { "type": "integer" },
+          "sso_type": { "type": "string", "enum": ["OKTA", "DUO", "PINGONE", "ADFS", "SAML2", "AZURE"] },
+          "sso_details": { "type": "object" },
+          "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE"] },
+          "certificate": { "type": "string" },
+          "entity_id": { "type": "string", "maxLength": 256, "nullable": true },
+          "issuer": { "type": "string", "maxLength": 256, "nullable": true },
+          "certificate_file_name": { "type": "string", "maxLength": 255, "nullable": true },
+          "version": { "type": "string", "minLength": 1, "maxLength": 10 }
+        }
+      },
+      "SsoList": {
+        "type": "object",
+        "properties": {
+          "offset": { "type": "integer", "default": 0 },
+          "limit": { "type": "integer", "default": 20 },
+          "sortBy": { "type": "string" },
+          "count": { "type": "integer", "default": 0 },
+          "list": { "type": "array", "items": { "$ref": "#/components/schemas/SsoDetail" } }
+        }
+      },
+      "SsoCreate": {
+        "type": "object",
+        "required": ["name", "description", "sso_type", "status", "entity_id", "issuer", "sso_details", "certificate"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "maxLength": 254 },
+          "description": { "type": "string", "minLength": 1, "maxLength": 254 },
+          "sso_type": { "type": "string", "enum": ["OKTA", "DUO", "PINGONE", "ADFS", "SAML2", "AZURE"] },
+          "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE"] },
+          "entity_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "issuer": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "sso_details": { "type": "string" },
+          "certificate": { "type": "string", "format": "binary" }
+        }
+      },
+      "SsoCertificateCreate": {
+        "type": "object",
+        "required": ["country_code", "state", "locality", "organization", "organization_unit", "common_name", "email_address", "self_signed"],
+        "properties": {
+          "country_code": { "type": "string", "minLength": 1, "maxLength": 2 },
+          "state": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "locality": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "organization": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "organization_unit": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "common_name": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "email_address": { "type": "string", "format": "email", "minLength": 1, "maxLength": 128 },
+          "subject_alternative_names": { "type": "string" },
+          "self_signed": { "type": "boolean" },
+          "validity": { "type": "integer", "minimum": 1, "maximum": 3650 },
+          "csr_uploaded": { "type": "boolean", "default": false }
+        }
+      },
+      "SsoCertificateInfo": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "countryCode": { "type": "string" },
+          "state": { "type": "string", "nullable": true },
+          "locality": { "type": "string", "nullable": true },
+          "organization": { "type": "string", "nullable": true },
+          "organizationUnit": { "type": "string" },
+          "commonName": { "type": "string" },
+          "emailAddress": { "type": "string" },
+          "subjectAlternativeNames": { "type": "string" },
+          "selfSigned": { "type": "string" },
+          "validity": { "type": "integer", "nullable": true },
+          "csrUploaded": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/account/company": {
+      "get": {
+        "tags": ["account"],
+        "operationId": "account_company_list",
+        "summary": "List companies the authenticated user can access",
+        "responses": {
+          "200": { "description": "Success" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+
+    "/company/ip-address-whitelist": {
+      "get": {
+        "tags": ["company"],
+        "operationId": "company_ip_address_whitelist_list",
+        "summary": "Company IP whitelist",
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IpAddressWhitelist" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/company/key": {
+      "get": {
+        "tags": ["company"],
+        "operationId": "company_key_list",
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CompanyKey" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      },
+      "post": {
+        "tags": ["company"],
+        "operationId": "company_key_create",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CompanyKeyUpdate" } } } },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/company/licenses": {
+      "get": {
+        "tags": ["company"],
+        "operationId": "company_licenses_list",
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CompanyLicense" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/company/logo/{login}": {
+      "get": {
+        "tags": ["company"],
+        "operationId": "company_logo_read",
+        "parameters": [{ "name": "login", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CompanyLogo" } } } },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/company/on-premise": {
+      "get": {
+        "tags": ["company"],
+        "operationId": "company_on_premise_list",
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OnPremise" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "tags": ["company"],
+        "operationId": "company_on_premise_update",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OnPremise" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OnPremise" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/company/{company_id}": {
+      "get": {
+        "tags": ["company"],
+        "operationId": "company_read",
+        "parameters": [{ "name": "company_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CompanyDetail" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "tags": ["company"],
+        "operationId": "company_update",
+        "parameters": [{ "name": "company_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": true, "content": { "multipart/form-data": { "schema": { "$ref": "#/components/schemas/CompanyUpdateMultipart" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CompanyDetail" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+
+    "/diagnostic-logs/": {
+      "get": { "tags": ["diagnostic-logs"], "operationId": "diagnostic_logs_list", "responses": { "200": { "description": "Success" } } }
+    },
+    "/diagnostic-logs/download": {
+      "get": { "tags": ["diagnostic-logs"], "operationId": "diagnostic_logs_download_list", "responses": { "200": { "description": "Success" } } }
+    },
+    "/diagnostic-logs/generate": {
+      "post": { "tags": ["diagnostic-logs"], "operationId": "diagnostic_logs_generate_create", "responses": { "201": { "description": "Created" } } }
+    },
+
+    "/email-server-configuration": {
+      "get": {
+        "tags": ["email-server-configuration"],
+        "operationId": "email_server_configuration_list",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer" } },
+          { "name": "page_size", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EmailServerConfig" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "post": {
+        "tags": ["email-server-configuration"],
+        "operationId": "email_server_configuration_create",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EmailServerConfig" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EmailServerConfig" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      }
+    },
+    "/email-server-configuration/test": {
+      "post": {
+        "tags": ["email-server-configuration"],
+        "operationId": "email_server_configuration_test_create",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EmailServerTest" } } } },
+        "responses": {
+          "200": { "description": "Sent successfully" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+
+    "/license": {
+      "get": {
+        "tags": ["license"],
+        "operationId": "license_list",
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/License" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/license/{id}": {
+      "get": {
+        "tags": ["license"],
+        "operationId": "license_read",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/License" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+
+    "/license-subscription": {
+      "get": {
+        "tags": ["license-subscription"],
+        "operationId": "license_subscription_list",
+        "parameters": [
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 } },
+          { "name": "company_subscription", "in": "query", "schema": { "type": "boolean", "default": false } },
+          { "name": "app_subscription", "in": "query", "schema": { "type": "boolean", "default": false } },
+          { "name": "order_by", "in": "query", "schema": { "type": "string" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "sort_type", "in": "query", "schema": { "type": "string", "default": "ascending" } },
+          { "name": "subs_status", "in": "query", "style": "form", "explode": true, "schema": { "type": "array", "items": { "type": "string" } } }
+        ],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LicenseSubscription" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/license-subscription/{id}": {
+      "delete": {
+        "tags": ["license-subscription"],
+        "operationId": "license_subscription_delete",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": false, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LicenseSubscriptionDelete" } } } },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/license-subscription/{id}/activate-license": {
+      "post": {
+        "tags": ["license-subscription"],
+        "operationId": "license_subscription_activate_license_create",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LicenseActivate" } } } },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+
+    "/manager/company/user": {
+      "post": {
+        "tags": ["manager"],
+        "operationId": "manager_company_user_create",
+        "summary": "Invite a company user (SA only)",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserCreate" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserDetail" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "406": { "description": "This user can't be invited" },
+          "409": { "description": "User already exists" }
+        }
+      }
+    },
+
+    "/map-configuration": {
+      "get": {
+        "tags": ["map-configuration"],
+        "operationId": "map_configuration_list",
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MapConfiguration" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      },
+      "put": {
+        "tags": ["map-configuration"],
+        "operationId": "map_configuration_update",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MapConfiguration" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MapConfiguration" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+
+    "/oidc": {
+      "post": {
+        "tags": ["oidc"],
+        "operationId": "oidc_create",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OidcConfig" } } } },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OidcConfig" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "500": { "description": "Failed to create OIDC." }
+        }
+      }
+    },
+    "/oidc/{uuid}": {
+      "get": {
+        "tags": ["oidc"],
+        "operationId": "oidc_read",
+        "parameters": [{ "name": "uuid", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OidcConfig" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "description": "OIDC with given UUID not found." }
+        }
+      },
+      "put": {
+        "tags": ["oidc"],
+        "operationId": "oidc_update",
+        "parameters": [{ "name": "uuid", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OidcConfig" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OidcConfig" } } } },
+          "404": { "description": "OIDC with given UUID not found." },
+          "500": { "description": "Failed to edit OIDC." }
+        }
+      },
+      "delete": {
+        "tags": ["oidc"],
+        "operationId": "oidc_delete",
+        "parameters": [{ "name": "uuid", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "404": { "description": "OIDC with given UUID not found." },
+          "500": { "description": "Failed to delete OIDC." }
+        }
+      }
+    },
+
+    "/request-license-renew/{id}": {
+      "post": {
+        "tags": ["request-license-renew"],
+        "operationId": "request_license_renew_create",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RequestLicenseRenew" } } } },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+
+    "/service-account": {
+      "get": {
+        "tags": ["service-account"],
+        "operationId": "service_account_list",
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/ServiceAccountList" } } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      },
+      "post": {
+        "tags": ["service-account"],
+        "operationId": "service_account_create",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceAccountCreate" } } } },
+        "responses": {
+          "201": { "description": "Created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceAccountDetail" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "409": { "description": "Service Account already exists" },
+          "500": { "description": "Failed to create service account." }
+        }
+      },
+      "delete": {
+        "tags": ["service-account"],
+        "operationId": "service_account_delete_many",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceAccountDelete" } } } },
+        "responses": {
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "description": "Failed to delete service accounts." }
+        }
+      }
+    },
+    "/service-account/domain": {
+      "get": {
+        "tags": ["service-account"],
+        "operationId": "service_account_domain_list",
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "type": "object", "properties": { "domain": { "type": "string" } } } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/service-account/{service_account_id}": {
+      "put": {
+        "tags": ["service-account"],
+        "operationId": "service_account_update",
+        "parameters": [{ "name": "service_account_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceAccountCreate" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceAccountDetail" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "description": "Failed to update service account." }
+        }
+      },
+      "delete": {
+        "tags": ["service-account"],
+        "operationId": "service_account_delete",
+        "parameters": [{ "name": "service_account_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/service-account/{service_account_id}/regenerate-key": {
+      "put": {
+        "tags": ["service-account"],
+        "operationId": "service_account_regenerate_key_update",
+        "parameters": [{ "name": "service_account_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ServiceAccountDetail" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "description": "Failed to regenerate API key." }
+        }
+      }
+    },
+    "/service-account/{user_id}/lock": {
+      "patch": {
+        "tags": ["service-account"],
+        "operationId": "service_account_lock_partial_update",
+        "parameters": [{ "name": "user_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LockStatus" } } } },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+
+    "/sso": {
+      "get": {
+        "tags": ["sso"],
+        "operationId": "sso_list",
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SsoList" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      },
+      "post": {
+        "tags": ["sso"],
+        "operationId": "sso_create",
+        "requestBody": { "required": true, "content": { "multipart/form-data": { "schema": { "$ref": "#/components/schemas/SsoCreate" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SsoDetail" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      },
+      "put": {
+        "tags": ["sso"],
+        "operationId": "sso_update",
+        "requestBody": { "required": true, "content": { "multipart/form-data": { "schema": { "$ref": "#/components/schemas/SsoCreate" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SsoDetail" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/sso/certificate": {
+      "post": {
+        "tags": ["sso"],
+        "operationId": "sso_certificate_create",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SsoCertificateCreate" } } } },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "500": { "description": "Internal server error." }
+        }
+      }
+    },
+    "/sso/certificate/available": {
+      "get": {
+        "tags": ["sso"],
+        "operationId": "sso_certificate_available_list",
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SsoCertificateInfo" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/sso/certificate/download": {
+      "post": {
+        "tags": ["sso"],
+        "operationId": "sso_certificate_download_create",
+        "responses": {
+          "200": { "description": "Download file link" },
+          "404": { "description": "Certificate does not exists" }
+        }
+      }
+    },
+    "/sso/certificate/upload": {
+      "post": {
+        "tags": ["sso"],
+        "operationId": "sso_certificate_upload_create",
+        "requestBody": {
+          "required": true,
+          "content": { "multipart/form-data": { "schema": { "type": "object", "required": ["file"], "properties": { "file": { "type": "string", "format": "binary" } } } } }
+        },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/sso/{id}": {
+      "get": {
+        "tags": ["sso"],
+        "operationId": "sso_read",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SsoDetail" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "tags": ["sso"],
+        "operationId": "sso_delete",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Success" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+
+    "/user": {
+      "get": {
+        "tags": ["user"],
+        "operationId": "user_list",
+        "parameters": [
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 } },
+          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["CA", "GA", "SA"] } },
+          { "name": "active", "in": "query", "schema": { "type": "integer", "enum": [0, 1] } },
+          { "name": "unassigned_group_users", "in": "query", "schema": { "type": "integer", "enum": [0, 1] } },
+          { "name": "group", "in": "query", "schema": { "type": "integer" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserListResponse" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_create",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserCreate" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserDetail" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "406": { "description": "This user can't be invited to your organization" },
+          "409": { "description": "User already exists" }
+        }
+      }
+    },
+    "/user/auth": {
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_authenticate",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserAuthenticate" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserAuthResponse" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/user/auth-method": {
+      "patch": {
+        "tags": ["user"],
+        "operationId": "user_auth_method_partial_update",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserAuthMethod" } } } },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/user/auth/{company_id}": {
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_change_organization",
+        "parameters": [{ "name": "company_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Destroys previous session and creates new one on chosen organization." },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/user/change-password": {
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_change_password_create",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserChangePassword" } } } },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/user/forgot-password": {
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_forgot_password_create",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserForgotPassword" } } } },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/user/generate-recovery-key": {
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_generate_recovery_key_create",
+        "responses": {
+          "200": { "description": "Recovery key generated" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/user/get-mfa-token": {
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_get_mfa_token_create",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MfaTokenRequest" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MfaTokenResponse" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      }
+    },
+    "/user/logout": {
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_logout_create",
+        "responses": { "200": { "description": "Success and session destroyed" } }
+      }
+    },
+    "/user/mfa-login": {
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_mfa_login_create",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MfaLogin" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserAuthResponse" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/user/register": {
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_register_create",
+        "security": [],
+        "responses": { "201": { "description": "Created" } }
+      }
+    },
+    "/user/register-mfa-token": {
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_register_mfa_token_create",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MfaRegisterToken" } } } },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "500": { "description": "MFA Key not in request" }
+        }
+      }
+    },
+    "/user/reset-mfa-token": {
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_reset_mfa_token_create",
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/user/reset-password": {
+      "post": {
+        "tags": ["user"],
+        "operationId": "user_reset_password_create",
+        "security": [],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserResetPassword" } } } },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "description": "The token has expired." }
+        }
+      }
+    },
+    "/user/{user_id}": {
+      "get": {
+        "tags": ["user"],
+        "operationId": "user_read",
+        "parameters": [{ "name": "user_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserDetail" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "tags": ["user"],
+        "operationId": "user_update",
+        "parameters": [{ "name": "user_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserUpdate" } } } },
+        "responses": {
+          "200": { "description": "Success", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserDetail" } } } },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "tags": ["user"],
+        "operationId": "user_delete",
+        "parameters": [{ "name": "user_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/user/{user_id}/lock-status": {
+      "patch": {
+        "tags": ["user"],
+        "operationId": "user_lock_status_partial_update",
+        "parameters": [{ "name": "user_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LockStatus" } } } },
+        "responses": {
+          "200": { "description": "Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/user/{user_id}/make-local": {
+      "put": {
+        "tags": ["user"],
+        "operationId": "user_make_local_update",
+        "parameters": [{ "name": "user_id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+
+    "/users/download": {
+      "get": {
+        "tags": ["users"],
+        "operationId": "users_download_list",
+        "parameters": [
+          { "name": "file_type", "in": "query", "required": true, "schema": { "type": "string", "enum": ["csv", "excel"] } },
+          { "name": "q", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "File generated (csv or excel)" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+
+    "/v2/security/oidc/{uuid}": {
+      "get": {
+        "tags": ["v2"],
+        "operationId": "v2_security_oidc_read",
+        "parameters": [{ "name": "uuid", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Success" } }
+      }
+    },
+    "/v2/security/oidc/{uuid}/callback": {
+      "get": {
+        "tags": ["v2"],
+        "operationId": "v2_security_oidc_callback_list",
+        "parameters": [{ "name": "uuid", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Success" } }
+      }
+    }
+  }
+}
